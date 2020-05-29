@@ -130,24 +130,23 @@ public:
 
             prevStat = stat.get();
         }
-        if (replaceNodes.empty()) {
-            ModuleFunction::run(ctx, classDef.get());
-            return classDef;
-        }
 
-        auto oldRHS = std::move(classDef->rhs);
-        classDef->rhs.clear();
-        classDef->rhs.reserve(oldRHS.size());
+        if (!replaceNodes.empty()) {
+            auto oldRHS = std::move(classDef->rhs);
+            classDef->rhs.clear();
+            classDef->rhs.reserve(oldRHS.size());
 
-        for (auto &stat : oldRHS) {
-            if (replaceNodes.find(stat.get()) == replaceNodes.end()) {
-                classDef->rhs.emplace_back(std::move(stat));
-            } else {
-                for (auto &newNode : replaceNodes.at(stat.get())) {
-                    classDef->rhs.emplace_back(std::move(newNode));
+            for (auto &stat : oldRHS) {
+                if (replaceNodes.find(stat.get()) == replaceNodes.end()) {
+                    classDef->rhs.emplace_back(std::move(stat));
+                } else {
+                    for (auto &newNode : replaceNodes.at(stat.get())) {
+                        classDef->rhs.emplace_back(std::move(newNode));
+                    }
                 }
             }
         }
+
         ModuleFunction::run(ctx, classDef.get());
 
         return classDef;
